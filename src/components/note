@@ -1,0 +1,93 @@
+saveNum = (e) => {
+        if(evaluated){
+            this.props.clearF();
+            this.props.clearC(); 
+            evaluated = false;
+        }
+        this.props.value(e.target.dataset.value);
+        this.props.renderResult(e.target.dataset.value);
+        console.log(this.props.currentValue); 
+    }
+
+    saveCalc = (e) => {
+        if(!evaluated){
+            // this.props.savedNums.push(this.getCurrentValue() || 0);
+            this.props.save(`${this.getCurrentValue()}${e.target.dataset.value}`);
+            this.props.renderResult(e.target.dataset.value);
+            this.props.clearC(); 
+            calcClick = true;
+        }else {
+            this.props.clearF();
+            this.props.clearC(); 
+            if(this.state.finalValue !== 0){
+                this.props.save(this.state.finalValue); 
+                this.props.renderResult(this.state.finalValue);
+
+            }
+            this.props.save(e.target.dataset.value);
+            this.props.renderResult(e.target.dataset.value);
+
+            // this.props.savedNums.push(this.getCurrentValue() || 0);
+            evaluated = false;
+            calcClick = true;
+        }
+    }
+
+
+    getCurrentValue = () => {
+        let values = this.props.currentValue;
+        let result = '';
+        for(let i =0; i<values.length; i++){
+            
+            result += values[i];
+            
+        }
+
+        let removedZero = result.replace(/^0+/, '');
+        var regex = /[.]\d*[.]+/g;
+        return removedZero.replace(regex, '.');
+    }
+
+    cals = () => {
+        let value = this.getCurrentValue();
+        this.props.savedNums.push(value);
+        let values = this.props.savedNums;
+        let result = '';
+        for(let i =0; i<values.length; i++){
+            result += values[i];
+        }
+        let finalResult = '';
+        result = result.replace(/[+*/-]$/, '');
+        console.log(result);
+        result = result.replace(/[pmsd]+m/, 'm');
+        result = result.replace(/[pmsd]+d/, 'd');
+        result = result.replace(/p/g, '+');
+        result = result.replace(/s/g, '-');
+        result = result.replace(/d/g, '/');
+        result = result.replace(/m/g, '*');
+
+        console.log(result);
+        try{
+             finalResult = eval(result);
+             this.props.save(`=${finalResult}`);
+             this.props.renderResult(`=${finalResult}`);
+
+        } catch(err) {
+            finalResult = 'Please Enter a Valid Number';
+            this.props.save(`${finalResult}`);
+            this.props.clearC();
+            this.props.clearF();
+        }
+        
+        evaluated = true;
+        this.setState({finalValue:finalResult});
+        this.props.clearC(); 
+        this.props.value(finalResult);
+    }
+
+    clearAll = () => {
+        this.props.clearC();
+        this.props.clearF();
+        evaluated = false;
+        calcClick = false;
+    }
